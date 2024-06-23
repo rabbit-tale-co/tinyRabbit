@@ -98,14 +98,14 @@ async function createXpEmbed(
 			{
 				name: '🌐 Global Ranking',
 				value: `\`\`\`${
-					globalRank !== null ? '#' + formatter.format(globalRank) : 'idk man'
+					globalRank !== null ? `#${formatter.format(globalRank)}` : 'idk man'
 				}\`\`\``,
 				inline: true,
 			},
 			{
 				name: '🏠 Server Ranking',
 				value: `\`\`\`${
-					serverRank !== null ? '#' + formatter.format(serverRank) : 'idk man'
+					serverRank !== null ? `#${formatter.format(serverRank)}` : 'idk man'
 				}\`\`\``,
 				inline: true,
 			}

@@ -63,8 +63,13 @@ async function addUserOrUpdate(serverId, userId, userData) {
 	try {
 		const userRef = doc(db, 'servers', serverId, 'levels', userId)
 
-		const userXp = !Number.isNaN(userData.xp) ? userData.xp : 0
-		const userLevel = !Number.isNaN(userData.level) ? userData.level : 0
+		const userXp = (typeof userData.xp === 'number' && !Number.isNaN(userData.xp)) ? userData.xp : 0;
+		const userLevel = (typeof userData.level === 'number' && !Number.isNaN(userData.level)) ? userData.level : 0;
+
+		await setDoc(userRef, {
+			xp: userXp,
+			level: userLevel,
+		})
 
 		const userDoc = await getDoc(userRef)
 
