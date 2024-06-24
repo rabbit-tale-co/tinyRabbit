@@ -36,7 +36,7 @@ async function getServerLeaderboard(serverId) {
 				const serverSnapshot = await getDocs(serverRef)
 
 				let serverXP = 0
-				for (const serverDoc of serverSnapshot) {
+				for (const serverDoc of serverSnapshot.docs) {
 					if (serverDoc.id === serverId) {
 						serverXP = serverDoc.data().xp
 					}
