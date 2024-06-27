@@ -1,7 +1,7 @@
 import { fetchTotalXp } from '../api/totalXp'
 import { getGlobalLeaderboard, updateLeaderboard } from '../api/leaderBoard'
 import { getGlobalRank, getServerRank } from '../api/userRank'
-import { checkBotMembership, getGuildDetails } from '../api/guilds'
+import { checkBotMembership, getBotGuilds, getGuildDetails } from '../api/guilds'
 import { checkBotStatus } from '../api/status/BotStatus'
 import { checkDatabaseConnection } from '../api/status/dbConnection'
 import { getHealthStatus } from '../api/healthCheck'
