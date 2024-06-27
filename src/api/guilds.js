@@ -14,7 +14,7 @@ async function getBotGuilds() {
   
 		// Fetch detailed information for each guild
 		const detailedGuilds = await Promise.all(guilds.map(async guild => {
-		  const guildResponse = await fetch(`https://discord.com/api/guilds/${guild.id}`, {
+		  const guildResponse = await fetch(`https://discord.com/api/guilds/${guild.id}?with_counts=true`, {
 			 headers: {
 				Authorization: `Bot ${process.env.BOT_TOKEN}`,
 			 },
