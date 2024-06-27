@@ -1,3 +1,24 @@
+async function getCustomInvite(guildId) {
+	try {
+	  const response = await fetch(`https://discord.com/api/guilds/${guildId}/invites`, {
+		 headers: {
+			Authorization: `Bot ${process.env.BOT_TOKEN}`,
+		 },
+	  });
+ 
+	  if (!response.ok) {
+		 console.error(`Failed to fetch invites for guild ${guildId}`);
+		 return null;
+	  }
+ 
+	  const invites = await response.json();
+	  return invites.length > 0 ? invites[0].code : null;
+	} catch (error) {
+	  console.error('Error fetching custom invites:', error);
+	  return null;
+	}
+ }
+
 async function getBotGuilds() {
 	try {
 		const response = await fetch('https://discord.com/api/users/@me/guilds', {
@@ -26,10 +47,16 @@ async function getBotGuilds() {
 		  }
   
 		  const guildDetails = await guildResponse.json();
+		  const inviteCode = await getCustomInvite(guild.id);
+
+		  if (!inviteCode) return null;
+		  
+
 		  return {
 			 ...guild,
 			 memberCount: guildDetails.approximate_member_count,
-			 isVerified: guildDetails.verified,
+			 isVerified: guildDetails.features.includes('VERIFIED'),
+			 inviteLink: `https://discord.gg/${inviteCode}`,
 		  };
 		}));
   
