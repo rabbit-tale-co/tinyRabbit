@@ -1,3 +1,23 @@
+async function getBotGuilds() {
+  try {
+    const response = await fetch('https://discord.com/api/users/@me/guilds', {
+      headers: {
+        Authorization: `Bot ${process.env.BOT_TOKEN}`,
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error('Failed to fetch guilds');
+    }
+
+    const guilds = await response.json();
+    return guilds;
+  } catch (error) {
+    console.error('Error fetching bot guilds:', error);
+    throw error;
+  }
+}
+
 async function getGuildDetails(guildId) {
 	const response = await fetch(
 		`https://discord.com/api/guilds/${guildId}?with_counts=true`,
@@ -93,4 +113,4 @@ async function checkBotMembership(guildId) {
 	}
 }
 
-export { getGuildDetails, checkBotMembership }
+export { getGuildDetails, checkBotMembership, getBotGuilds }

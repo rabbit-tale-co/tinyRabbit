@@ -50,6 +50,8 @@ async function router(req) {
 			return handleGetGuild(req)
 		case '/api/guilds/checkBotMembership':
 			return handleCheckBotMembership(req)
+		case '/api/guilds/botGuilds':
+			return handleGetBotGuilds(req);
 		case '/api/user/getUsers':
 			return handleGetUsers(req)
 		case '/api/user/getUser':
@@ -260,6 +262,27 @@ async function handleCheckBotMembership(req) {
 		})
 	}
 }
+
+async function handleGetBotGuilds(req) {
+	try {
+	  const guilds = await getBotGuilds();
+	  return new Response(JSON.stringify(guilds), {
+		 headers: {
+			'Access-Control-Allow-Origin': '*',
+			'Content-Type': 'application/json',
+		 },
+	  });
+	} catch (error) {
+	  console.error('Error fetching bot guilds:', error);
+	  return new Response(JSON.stringify({ error: 'Error fetching bot guilds' }), {
+		 status: 500,
+		 headers: {
+			'Access-Control-Allow-Origin': '*',
+			'Content-Type': 'application/json',
+		 },
+	  });
+	}
+ }
 
 /**
  * User API
