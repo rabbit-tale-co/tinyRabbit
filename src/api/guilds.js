@@ -1,21 +1,43 @@
 async function getBotGuilds() {
-  try {
-    const response = await fetch('https://discord.com/api/users/@me/guilds', {
-      headers: {
-        Authorization: `Bot ${process.env.BOT_TOKEN}`,
-      },
-    });
-
-    if (!response.ok) {
-      throw new Error('Failed to fetch guilds');
-    }
-
-    const guilds = await response.json();
-    return guilds;
-  } catch (error) {
-    console.error('Error fetching bot guilds:', error);
-    throw error;
-  }
+	try {
+		const response = await fetch('https://discord.com/api/users/@me/guilds', {
+		  headers: {
+			 Authorization: `Bot ${process.env.BOT_TOKEN}`,
+		  },
+		});
+  
+		if (!response.ok) {
+		  throw new Error('Failed to fetch guilds');
+		}
+  
+		const guilds = await response.json();
+  
+		// Fetch detailed information for each guild
+		const detailedGuilds = await Promise.all(guilds.map(async guild => {
+		  const guildResponse = await fetch(`https://discord.com/api/guilds/${guild.id}`, {
+			 headers: {
+				Authorization: `Bot ${process.env.BOT_TOKEN}`,
+			 },
+		  });
+  
+		  if (!guildResponse.ok) {
+			 console.error(`Failed to fetch details for guild ${guild.id}`);
+			 return guild;
+		  }
+  
+		  const guildDetails = await guildResponse.json();
+		  return {
+			 ...guild,
+			 memberCount: guildDetails.approximate_member_count,
+			 isVerified: guildDetails.verified,
+		  };
+		}));
+  
+		return detailedGuilds;
+	 } catch (error) {
+		console.error('Error fetching bot guilds:', error);
+		throw error;
+	 }
 }
 
 async function getGuildDetails(guildId) {
