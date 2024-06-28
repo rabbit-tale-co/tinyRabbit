@@ -6,7 +6,7 @@ async function getCustomInvite(guildId) {
 				headers: {
 					Authorization: `Bot ${process.env.BOT_TOKEN}`,
 				},
-			}
+			},
 		)
 
 		if (!response.ok) {
@@ -45,7 +45,7 @@ async function getBotGuilds() {
 						headers: {
 							Authorization: `Bot ${process.env.BOT_TOKEN}`,
 						},
-					}
+					},
 				)
 
 				if (!guildResponse.ok) {
@@ -54,12 +54,13 @@ async function getBotGuilds() {
 				}
 
 				const guildDetails = await guildResponse.json()
-				const inviteCode = await getCustomInvite(guild.id)
+				const inviteCode = guildDetails.features.includes('COMMUNITY')
+					? await getCustomInvite(guild.id)
+					: null
 
-				if (!inviteCode || !guildDetails.features.includes('COMMUNITY')) {
-					// Skip guilds that are not community servers or do not have an invite link
-					return null;
-				 }
+				if (!inviteCode) {
+					return null
+				}
 
 				return {
 					...guild,
@@ -67,7 +68,7 @@ async function getBotGuilds() {
 					isVerified: guildDetails.features.includes('VERIFIED'),
 					inviteLink: `https://discord.gg/${inviteCode}`,
 				}
-			})
+			}),
 		)
 
 		return detailedGuilds
@@ -84,7 +85,7 @@ async function getGuildDetails(guildId) {
 			headers: {
 				Authorization: `Bot ${process.env.BOT_TOKEN}`,
 			},
-		}
+		},
 	)
 
 	if (!response.ok) {
@@ -100,7 +101,7 @@ async function getGuildDetails(guildId) {
 			headers: {
 				Authorization: `Bot ${process.env.BOT_TOKEN}`,
 			},
-		}
+		},
 	)
 
 	if (!channelsResponse.ok) {
@@ -110,14 +111,14 @@ async function getGuildDetails(guildId) {
 	let channels = await channelsResponse.json()
 	const categoryCount = channels.filter((channel) => channel.type === 4).length
 	const textChannelCount = channels.filter(
-		(channel) => channel.type === 0
+		(channel) => channel.type === 0,
 	).length
 	const voiceChannelCount = channels.filter(
-		(channel) => channel.type === 2
+		(channel) => channel.type === 2,
 	).length
 
 	channels = channels.filter(
-		(channel) => channel.type === 0 || channel.type === 2
+		(channel) => channel.type === 0 || channel.type === 2,
 	)
 
 	// Fetch roles
@@ -127,7 +128,7 @@ async function getGuildDetails(guildId) {
 			headers: {
 				Authorization: `Bot ${process.env.BOT_TOKEN}`,
 			},
-		}
+		},
 	)
 
 	if (!rolesResponse.ok) {
