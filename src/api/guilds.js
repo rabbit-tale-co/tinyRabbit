@@ -54,19 +54,18 @@ async function getBotGuilds() {
 				}
 
 				const guildDetails = await guildResponse.json()
-				const inviteCode = guildDetails.features.includes('COMMUNITY')
-					? await getCustomInvite(guild.id)
-					: null
 
-				if (!inviteCode) {
-					return null
+				let inviteLink = ''
+				if (guildDetails.features.includes('COMMUNITY')) {
+					const inviteCode = await getCustomInvite(guild.id)
+					inviteLink = inviteCode ? `https://discord.gg/${inviteCode}` : ''
 				}
 
 				return {
 					...guild,
 					memberCount: guildDetails.approximate_member_count,
 					isVerified: guildDetails.features.includes('VERIFIED'),
-					inviteLink: `https://discord.gg/${inviteCode}`,
+					inviteLink: inviteLink,
 				}
 			}),
 		)
