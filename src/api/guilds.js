@@ -66,6 +66,7 @@ async function getBotGuilds() {
 					memberCount: guildDetails.approximate_member_count,
 					isVerified: guildDetails.features.includes('VERIFIED'),
 					inviteLink: inviteLink,
+					isCommunity: guildDetails.features.includes('COMMUNITY'),
 				}
 			}),
 		)
