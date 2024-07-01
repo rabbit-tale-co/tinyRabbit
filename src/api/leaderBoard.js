@@ -42,7 +42,7 @@ const fetchUserData = async (userId) => {
 				const retryAfter = response.headers.get('retry-after')
 				console.warn(`Rate limited. Retrying after ${retryAfter} seconds...`)
 				await new Promise((resolve) =>
-					setTimeout(resolve, (retryAfter || 1) * 1000)
+					setTimeout(resolve, (retryAfter || 1))
 				)
 				retries++
 				continue

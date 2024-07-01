@@ -142,9 +142,10 @@ async function handleGlobalLeaderboard(req) {
 
 		const globalLeaderboard = await getGlobalLeaderboard(page, limit)
 		const totalUsers = await getTotalUserCount()
+		const totalXp = await calculateTotalXp();
 
 		return new Response(
-			JSON.stringify({ leaderboard: globalLeaderboard, totalUsers }),
+			JSON.stringify({ leaderboard: globalLeaderboard, totalUsers, totalXp }),
 			{
 				headers: {
 					'Access-Control-Allow-Origin': '*',
