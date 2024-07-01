@@ -6,6 +6,7 @@ import { checkBotStatus } from '../api/status/BotStatus'
 import { checkDatabaseConnection } from '../api/status/dbConnection'
 import { getHealthStatus } from '../api/healthCheck'
 import { saveGreetings } from '../api/config'
+import { getUsers } from '../api/user'
 
 import { readFileSync } from 'node:fs'
 import { resolve } from 'node:path'

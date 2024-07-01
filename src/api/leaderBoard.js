@@ -2,6 +2,36 @@ import { collection, getDocs, doc, getDoc, setDoc, db } from '../db/firebase.js'
 import { calculateTotalXpForLevel } from '../utils/xpUtils.js'
 
 /**
+ * Fetches user data from Discord.
+ * @param {string} userId - The ID of the user.
+ * @returns {Promise<Object>} The user data.
+ */
+const fetchUserData = async (userId) => {
+	try {
+	  const response = await fetch(`https://discord.com/api/users/${userId}`, {
+		 headers: {
+			Authorization: `Bot ${process.env.BOT_TOKEN}`,
+		 },
+	  });
+ 
+	  if (!response.ok) {
+		 throw new Error('Failed to fetch user data');
+	  }
+ 
+	  const userData = await response.json();
+	  return {
+		 id: userData.id,
+		 username: userData.username,
+		 globalName: userData.global_name,
+		 avatarUrl: `https://cdn.discordapp.com/avatars/${userData.id}/${userData.avatar}.webp`,
+	  };
+	} catch (error) {
+	  console.error('Error fetching user data:', error);
+	  return null;
+	}
+ };
+
+/**
  * Gets the global leaderboard.
  * @returns {Promise<Array>} The global leaderboard.
  */
