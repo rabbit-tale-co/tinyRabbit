@@ -124,6 +124,21 @@ async function getGlobalLeaderboard(page = 1, limit = 25) {
 }
 
 /**
+ * Gets the total count of users in the leaderboard.
+ * @returns {Promise<number>} The total number of users.
+ */
+async function getTotalUserCount() {
+	try {
+		const ref = collection(db, 'leaderboard')
+		const snapshot = await getCountFromServer(ref)
+		return snapshot.data().count
+	} catch (error) {
+		console.error('Error fetching total user count:', error)
+		throw error
+	}
+}
+
+/**
  * Gets the server leaderboard.
  * @param {string} serverId - The ID of the server.
  * @returns {Promise<Array>} The server leaderboard.
@@ -200,4 +215,4 @@ async function updateLeaderboard(userId, serverId, level, xp) {
 	}
 }
 
-export { updateLeaderboard, getGlobalLeaderboard, getServerLeaderboard }
+export { updateLeaderboard, getGlobalLeaderboard, getServerLeaderboard, getTotalUserCount }
