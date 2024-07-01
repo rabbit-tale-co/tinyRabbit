@@ -1,4 +1,4 @@
-import { getGlobalLeaderboard } from './leaderBoard'
+import { getGlobalLeaderboard, getTotalUserCount } from './leaderBoard'
 
 /**
  * Fetches global leaderboard data and calculates total XP.
@@ -6,30 +6,66 @@ import { getGlobalLeaderboard } from './leaderBoard'
  */
 async function fetchTotalXp() {
 	try {
-		const leaderboard = await getGlobalLeaderboard()
+		const limit = 25; // Set the limit per page
+		const totalUsers = await getTotalUserCount();
+		const totalPages = Math.ceil(totalUsers / limit);
 
-		// Initialize total XP
-		let totalXp = 0
+		let totalXp = 0;
 
-		// Iterate over the global leaderboard and accumulate XP
-		for (const user of leaderboard) {
-			// Ensure user.xp is a number
-			const userXp = Number(user.xp)
-			if (!Number.isNaN(userXp)) {
-				totalXp += userXp
-			} else {
-				console.warn(
-					`Invalid XP value for user ${user.userId || 'unknown'}:`,
-					user.xp
-				)
+		for (let page = 1; page <= totalPages; page++) {
+			const leaderboard = await getGlobalLeaderboard(page, limit);
+
+			for (const user of leaderboard) {
+				const userXp = Number(user.xp);
+				if (!Number.isNaN(userXp)) {
+					totalXp += userXp;
+				} else {
+					console.warn(`Invalid XP value for user ${user.userId || 'unknown'}:`, user.xp);
+				}
 			}
 		}
 
-		return totalXp
+		return totalXp;
 	} catch (error) {
-		console.error('Error fetching total XP:', error)
-		throw error
+		console.error('Error fetching total XP:', error);
+		throw error;
 	}
 }
 
 export { fetchTotalXp }
+
+// import { getGlobalLeaderboard } from './leaderBoard'
+
+// /**
+//  * Fetches global leaderboard data and calculates total XP.
+//  * @returns {Promise<number>} Total XP from the global leaderboard.
+//  */
+// async function fetchTotalXp() {
+// 	try {
+// 		const leaderboard = await getGlobalLeaderboard()
+
+// 		// Initialize total XP
+// 		let totalXp = 0
+
+// 		// Iterate over the global leaderboard and accumulate XP
+// 		for (const user of leaderboard) {
+// 			// Ensure user.xp is a number
+// 			const userXp = Number(user.xp)
+// 			if (!Number.isNaN(userXp)) {
+// 				totalXp += userXp
+// 			} else {
+// 				console.warn(
+// 					`Invalid XP value for user ${user.userId || 'unknown'}:`,
+// 					user.xp
+// 				)
+// 			}
+// 		}
+
+// 		return totalXp
+// 	} catch (error) {
+// 		console.error('Error fetching total XP:', error)
+// 		throw error
+// 	}
+// }
+
+// export { fetchTotalXp }
