@@ -125,23 +125,26 @@ async function handleTotalXp(req) {
  */
 async function handleGlobalLeaderboard(req) {
 	try {
-		const url = new URL(req.url);
-		let limit = Number.parseInt(url.searchParams.get('limit')) || 10;
-		limit = Math.min(Math.max(limit, 1), 100); // Ensure the limit is between 1 and 100
-
-		const globalLeaderboard = await getGlobalLeaderboard(limit);
-
-		return new Response(JSON.stringify(globalLeaderboard), {
-			headers: {
-				'Access-Control-Allow-Origin': '*',
-				'Content-Type': 'application/json',
-			},
-		});
+	  const url = new URL(req.url);
+	  let min = Number.parseInt(url.searchParams.get('min')) || 1;
+	  let max = Number.parseInt(url.searchParams.get('max')) || 10;
+ 
+	  min = Math.max(min, 1); // Ensure min is at least 1
+	  max = Math.min(Math.max(max, min), 100); // Ensure max is between min and 100
+ 
+	  const globalLeaderboard = await getGlobalLeaderboard(min, max);
+ 
+	  return new Response(JSON.stringify(globalLeaderboard), {
+		 headers: {
+			'Access-Control-Allow-Origin': '*',
+			'Content-Type': 'application/json',
+		 },
+	  });
 	} catch (error) {
-		console.error('Error fetching global leaderboard:', error);
-		return new Response('Error fetching global leaderboard', { status: 500 });
+	  console.error('Error fetching global leaderboard:', error);
+	  return new Response('Error fetching global leaderboard', { status: 500 });
 	}
-}
+ }
 
 /**
  * Handles the /api/leaderboard/getGlobal endpoint.
