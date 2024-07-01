@@ -49,6 +49,7 @@ async function getGlobalLeaderboard(limit = 10) {
 		 return {
 			...user,
 			username: userData.username,
+			globalName: userData.globalName,
 			avatarUrl: userData.avatarUrl,
 		 };
 	  });
