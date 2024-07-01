@@ -45,12 +45,15 @@ async function getGlobalLeaderboard() {
 
 		const enrichedLeaderboardPromises = leaderboardData.map(async (user) => {
 			const userData = await fetchUserData(user.userId)
-			return {
-				...user,
-				username: userData.username,
-				globalName: userData.globalName,
-				avatarUrl: userData.avatarUrl,
+			if (userData) {
+				return {
+					...user,
+					username: userData.username,
+					globalName: userData.globalName,
+					avatarUrl: userData.avatarUrl,
+				}
 			}
+			return user // If userData is null, return the original user data
 		})
 
 		return Promise.all(enrichedLeaderboardPromises)
