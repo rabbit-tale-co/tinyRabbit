@@ -7,6 +7,7 @@ import {
 	db,
 	query,
 	orderBy,
+	limit as firestoreLimit
 } from '../db/firebase.js'
 import { calculateTotalXpForLevel } from '../utils/xpUtils.js'
 
