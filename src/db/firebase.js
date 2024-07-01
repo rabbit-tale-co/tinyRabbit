@@ -11,6 +11,7 @@ import {
 	orderBy,
 	limit,
 	startAfter,
+	getCountFromServer,
 } from 'firebase/firestore'
 
 const firebaseConfig = {
@@ -33,4 +34,4 @@ export function initializeFirebase() {
 	}
 }
 
-export { db, doc, getDoc, setDoc, getDocs, collection, writeBatch, query, orderBy, limit, startAfter }
+export { db, doc, getDoc, setDoc, getDocs, collection, writeBatch, query, orderBy, limit, startAfter, getCountFromServer  }

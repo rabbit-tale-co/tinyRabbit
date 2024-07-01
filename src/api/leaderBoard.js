@@ -8,7 +8,8 @@ import {
 	query,
 	orderBy,
 	limit as firestoreLimit,
-	startAfter 
+	startAfter,
+	getCountFromServer
 } from '../db/firebase.js'
 import { calculateTotalXpForLevel } from '../utils/xpUtils.js'
 
