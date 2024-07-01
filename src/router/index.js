@@ -1,7 +1,11 @@
 import { fetchTotalXp } from '../api/totalXp'
 import { getGlobalLeaderboard, updateLeaderboard } from '../api/leaderBoard'
 import { getGlobalRank, getServerRank } from '../api/userRank'
-import { checkBotMembership, getBotGuilds, getGuildDetails } from '../api/guilds'
+import {
+	checkBotMembership,
+	getBotGuilds,
+	getGuildDetails,
+} from '../api/guilds'
 import { checkBotStatus } from '../api/status/BotStatus'
 import { checkDatabaseConnection } from '../api/status/dbConnection'
 import { getHealthStatus } from '../api/healthCheck'
@@ -56,7 +60,7 @@ async function router(req) {
 		case '/api/guilds/checkBotMembership':
 			return handleCheckBotMembership(req)
 		case '/api/guilds/botGuilds':
-			return handleGetBotGuilds(req);
+			return handleGetBotGuilds(req)
 		case '/api/user/getUsers':
 			return handleGetUsers(req)
 		case '/api/user/getUser':
@@ -125,21 +129,26 @@ async function handleTotalXp(req) {
  */
 async function handleGlobalLeaderboard(req) {
 	try {
-	  const url = new URL(req.url);
- 
-	  const globalLeaderboard = await getGlobalLeaderboard();
- 
-	  return new Response(JSON.stringify(globalLeaderboard), {
-		 headers: {
-			'Access-Control-Allow-Origin': '*',
-			'Content-Type': 'application/json',
-		 },
-	  });
+		const url = new URL(req.url)
+		const page = Number.parseInt(url.searchParams.get('page')) || 1
+		const limit = Math.min(
+			Number.parseInt(url.searchParams.get('limit')) || 25,
+			100
+		) // Ensure the limit is between 1 and 100
+
+		const globalLeaderboard = await getGlobalLeaderboard(page, limit)
+
+		return new Response(JSON.stringify(globalLeaderboard), {
+			headers: {
+				'Access-Control-Allow-Origin': '*',
+				'Content-Type': 'application/json',
+			},
+		})
 	} catch (error) {
-	  console.error('Error fetching global leaderboard:', error);
-	  return new Response('Error fetching global leaderboard', { status: 500 });
+		console.error('Error fetching global leaderboard:', error)
+		return new Response('Error fetching global leaderboard', { status: 500 })
 	}
- }
+}
 
 /**
  * Handles the /api/leaderboard/getGlobal endpoint.
@@ -293,24 +302,27 @@ async function handleCheckBotMembership(req) {
 
 async function handleGetBotGuilds(req) {
 	try {
-	  const guilds = await getBotGuilds();
-	  return new Response(JSON.stringify(guilds), {
-		 headers: {
-			'Access-Control-Allow-Origin': '*',
-			'Content-Type': 'application/json',
-		 },
-	  });
+		const guilds = await getBotGuilds()
+		return new Response(JSON.stringify(guilds), {
+			headers: {
+				'Access-Control-Allow-Origin': '*',
+				'Content-Type': 'application/json',
+			},
+		})
 	} catch (error) {
-	  console.error('Error fetching bot guilds:', error);
-	  return new Response(JSON.stringify({ error: 'Error fetching bot guilds' }), {
-		 status: 500,
-		 headers: {
-			'Access-Control-Allow-Origin': '*',
-			'Content-Type': 'application/json',
-		 },
-	  });
+		console.error('Error fetching bot guilds:', error)
+		return new Response(
+			JSON.stringify({ error: 'Error fetching bot guilds' }),
+			{
+				status: 500,
+				headers: {
+					'Access-Control-Allow-Origin': '*',
+					'Content-Type': 'application/json',
+				},
+			}
+		)
 	}
- }
+}
 
 /**
  * User API
