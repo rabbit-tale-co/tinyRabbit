@@ -87,57 +87,42 @@ const fetchUserData = async (userId) => {
  */
 async function getGlobalLeaderboard(page = 1, limit = 25) {
 	try {
-		const ref = collection(db, 'leaderboard')
-		const leaderboardQuery = query(
-			ref,
-			orderBy('xp', 'desc'),
-			firestoreLimit(limit)
-		)
-
-		// Get the documents for the previous pages to determine the starting point for pagination
-		const offset = (page - 1) * limit
-		let snapshot
-
-		if (offset > 0) {
-			const prevSnapshot = await getDocs(
-				query(ref, orderBy('xp', 'desc'), firestoreLimit(offset))
-			)
-			const lastVisible = prevSnapshot.docs[prevSnapshot.docs.length - 1]
-			snapshot = await getDocs(
-				query(
-					ref,
-					orderBy('xp', 'desc'),
-					firestoreLimit(limit),
-					startAfter(lastVisible)
-				)
-			)
-		} else {
-			snapshot = await getDocs(leaderboardQuery)
-		}
-
-		const leaderboardData = snapshot.docs
-			.map((doc) => ({ userId: doc.id, ...doc.data() }))
-			.sort((a, b) => b.xp - a.xp)
-
-		const enrichedLeaderboardPromises = leaderboardData.map(async (user) => {
-			const userData = await fetchUserData(user.userId)
-			if (userData) {
-				return {
-					...user,
-					username: userData.username,
-					globalName: userData.globalName,
-					avatarUrl: userData.avatarUrl,
-				}
-			}
-			return user // If userData is null, return the original user data
-		})
-
-		return Promise.all(enrichedLeaderboardPromises)
+	  const ref = collection(db, 'leaderboard');
+	  const leaderboardQuery = query(ref, orderBy('xp', 'desc'), firestoreLimit(limit));
+ 
+	  // Get the documents for the previous pages to determine the starting point for pagination
+	  const offset = (page - 1) * limit;
+	  let snapshot;
+ 
+	  if (offset > 0) {
+		 const prevSnapshot = await getDocs(query(ref, orderBy('xp', 'desc'), firestoreLimit(offset)));
+		 const lastVisible = prevSnapshot.docs[prevSnapshot.docs.length - 1];
+		 snapshot = await getDocs(query(ref, orderBy('xp', 'desc'), firestoreLimit(limit), startAfter(lastVisible)));
+	  } else {
+		 snapshot = await getDocs(leaderboardQuery);
+	  }
+ 
+	  const leaderboardData = snapshot.docs.map((doc) => ({ userId: doc.id, ...doc.data() }));
+ 
+	  const enrichedLeaderboardPromises = leaderboardData.map(async (user) => {
+		 const userData = await fetchUserData(user.userId);
+		 if (userData) {
+			return {
+			  ...user,
+			  username: userData.username,
+			  globalName: userData.globalName,
+			  avatarUrl: userData.avatarUrl,
+			};
+		 }
+		 return user; // If userData is null, return the original user data
+	  });
+ 
+	  return Promise.all(enrichedLeaderboardPromises);
 	} catch (error) {
-		console.error('Error fetching global leaderboard:', error)
-		throw error
+	  console.error('Error fetching global leaderboard:', error);
+	  throw error;
 	}
-}
+ }
 
 /**
  * Gets the total count of users in the leaderboard.
