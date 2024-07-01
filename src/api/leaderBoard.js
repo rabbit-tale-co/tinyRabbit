@@ -35,10 +35,6 @@ const fetchUserData = async (userId) => {
  * Gets the global leaderboard.
  * @returns {Promise<Array>} The global leaderboard.
  */
-/**
- * Gets the global leaderboard.
- * @returns {Promise<Array>} The global leaderboard.
- */
 async function getGlobalLeaderboard() {
 	try {
 	  const ref = collection(db, 'leaderboard');
@@ -63,6 +59,7 @@ async function getGlobalLeaderboard() {
 	  throw error;
 	}
  }
+ 
 
 /**
  * Gets the server leaderboard.
