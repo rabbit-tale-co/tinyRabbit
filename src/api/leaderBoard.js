@@ -157,6 +157,32 @@ async function getTotalUserCount() {
 }
 
 /**
+ * Calculates the total XP from the global leaderboard.
+ * @returns {Promise<number>} Total XP.
+ */
+async function calculateTotalXp() {
+	try {
+	  const ref = collection(db, 'leaderboard');
+	  const snapshot = await getDocs(ref);
+	  let totalXp = 0;
+ 
+
+	  for (const doc of snapshot.docs) {
+		 const userData = doc.data();
+		 const userXp = Number(userData.xp);
+		 if (!Number.isNaN(userXp)) {
+			totalXp += userXp;
+		 }
+	  }
+ 
+	  return totalXp;
+	} catch (error) {
+	  console.error('Error calculating total XP:', error);
+	  throw error;
+	}
+ }
+
+/**
  * Gets the server leaderboard.
  * @param {string} serverId - The ID of the server.
  * @returns {Promise<Array>} The server leaderboard.
@@ -238,4 +264,5 @@ export {
 	getGlobalLeaderboard,
 	getServerLeaderboard,
 	getTotalUserCount,
+	calculateTotalXp,
 }
