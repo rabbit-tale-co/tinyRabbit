@@ -41,9 +41,7 @@ const fetchUserData = async (userId) => {
 				// Handle rate limiting
 				const retryAfter = response.headers.get('retry-after')
 				console.warn(`Rate limited. Retrying after ${retryAfter} seconds...`)
-				await new Promise((resolve) =>
-					setTimeout(resolve, (retryAfter || 1))
-				)
+				await new Promise((resolve) => setTimeout(resolve, retryAfter || 1))
 				retries++
 				continue
 			}
@@ -162,25 +160,24 @@ async function getTotalUserCount() {
  */
 async function calculateTotalXp() {
 	try {
-	  const ref = collection(db, 'leaderboard');
-	  const snapshot = await getDocs(ref);
-	  let totalXp = 0;
- 
+		const ref = collection(db, 'leaderboard')
+		const snapshot = await getDocs(ref)
+		let totalXP = 0
 
-	  for (const doc of snapshot.docs) {
-		 const userData = doc.data();
-		 const userXp = Number(userData.xp);
-		 if (!Number.isNaN(userXp)) {
-			totalXp += userXp;
-		 }
-	  }
- 
-	  return totalXp;
+		for (const doc of snapshot.docs) {
+			const userData = doc.data()
+			const userXp = Number(userData.xp)
+			if (!Number.isNaN(userXp)) {
+				totalXP += userXp
+			}
+		}
+
+		return totalXP
 	} catch (error) {
-	  console.error('Error calculating total XP:', error);
-	  throw error;
+		console.error('Error calculating total XP:', error)
+		throw error
 	}
- }
+}
 
 /**
  * Gets the server leaderboard.
