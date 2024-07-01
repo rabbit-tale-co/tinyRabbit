@@ -333,6 +333,21 @@ async function handleGetBotGuilds(req) {
  */
 
 /**
+ * Gets the total count of users in the leaderboard.
+ * @returns {Promise<number>} The total number of users.
+ */
+async function getTotalUserCount() {
+	try {
+		const ref = collection(db, 'leaderboard')
+		const snapshot = await getCountFromServer(ref)
+		return snapshot.data().count
+	} catch (error) {
+		console.error('Error fetching total user count:', error)
+		throw error
+	}
+}
+
+/**
  * Handles the /api/user/getUsers endpoint.
  * @param {Request} req - The incoming HTTP request.
  * @returns {Promise<Response>} The HTTP response with the list of users.
