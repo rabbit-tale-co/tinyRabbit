@@ -1,9 +1,18 @@
-import { collection, getDocs, doc, getDoc, setDoc, db, query, orderBy } from '../db/firebase.js'
+import {
+	collection,
+	getDocs,
+	doc,
+	getDoc,
+	setDoc,
+	db,
+	query,
+	orderBy,
+} from '../db/firebase.js'
 import { calculateTotalXpForLevel } from '../utils/xpUtils.js'
 
-const BOT_TOKEN = process.env.BOT_TOKEN;
-const MAX_RETRIES = 5; // Maximum number of retries
-const USER_CACHE = new Map(); // In-memory cache
+const BOT_TOKEN = process.env.BOT_TOKEN
+const MAX_RETRIES = 5 // Maximum number of retries
+const USER_CACHE = new Map() // In-memory cache
 
 /**
  * Fetches user data from Discord.
@@ -11,55 +20,65 @@ const USER_CACHE = new Map(); // In-memory cache
  * @returns {Promise<Object>} The user data.
  */
 const fetchUserData = async (userId) => {
-  if (USER_CACHE.has(userId)) {
-    return USER_CACHE.get(userId);
-  }
+	if (USER_CACHE.has(userId)) {
+		return USER_CACHE.get(userId)
+	}
 
-  let retries = 0;
+	let retries = 0
 
-  while (retries < MAX_RETRIES) {
-    try {
-      const response = await fetch(`https://discord.com/api/users/${userId}`, {
-        headers: {
-          Authorization: `Bot ${BOT_TOKEN}`,
-        },
-      });
+	while (retries < MAX_RETRIES) {
+		try {
+			const response = await fetch(`https://discord.com/api/users/${userId}`, {
+				headers: {
+					Authorization: `Bot ${BOT_TOKEN}`,
+				},
+			})
 
-      if (response.status === 429) { // Handle rate limiting
-        const retryAfter = response.headers.get('retry-after');
-        console.warn(`Rate limited. Retrying after ${retryAfter} seconds...`);
-        await new Promise(resolve => setTimeout(resolve, (retryAfter || 1) * 1000));
-        retries++;
-        continue;
-      }
+			if (response.status === 429) {
+				// Handle rate limiting
+				const retryAfter = response.headers.get('retry-after')
+				console.warn(`Rate limited. Retrying after ${retryAfter} seconds...`)
+				await new Promise((resolve) =>
+					setTimeout(resolve, (retryAfter || 1) * 1000)
+				)
+				retries++
+				continue
+			}
 
-      if (!response.ok) {
-        const errorDetails = await response.text();
-        throw new Error(`Failed to fetch user data: ${response.status} ${response.statusText} - ${errorDetails}`);
-      }
+			if (!response.ok) {
+				const errorDetails = await response.text()
+				throw new Error(
+					`Failed to fetch user data: ${response.status} ${response.statusText} - ${errorDetails}`
+				)
+			}
 
-      const userData = await response.json();
-      const userRecord = {
-        id: userData.id,
-        username: userData.username,
-        globalName: userData.global_name,
-        avatarUrl: `https://cdn.discordapp.com/avatars/${userData.id}/${userData.avatar}.webp`,
-      };
+			const userData = await response.json()
+			const userRecord = {
+				id: userData.id,
+				username: userData.username,
+				globalName: userData.global_name,
+				avatarUrl: `https://cdn.discordapp.com/avatars/${userData.id}/${userData.avatar}.webp`,
+			}
 
-      USER_CACHE.set(userId, userRecord); // Cache the user data
-      return userRecord;
-    } catch (error) {
-      console.error(`Error fetching user data for user ID ${userId}:`, error.message);
-      if (retries < MAX_RETRIES) {
-        console.warn(`Retrying... (${retries + 1}/${MAX_RETRIES})`);
-        await new Promise(resolve => setTimeout(resolve, 1000 * 2 ** retries)); // Exponential backoff
-        retries++;
-      } else {
-        return null;
-      }
-    }
-  }
-};
+			USER_CACHE.set(userId, userRecord) // Cache the user data
+			return userRecord
+		} catch (error) {
+			console.error(
+				`Error fetching user data for user ID ${userId}:`,
+				error.message
+			)
+			if (retries < MAX_RETRIES) {
+				console.warn(`Retrying... (${retries + 1}/${MAX_RETRIES})`)
+				await new Promise((resolve) =>
+					setTimeout(resolve, 1000 * 2 ** retries)
+				) // Exponential backoff
+				retries++
+			} else {
+				return null
+			}
+		}
+	}
+}
 
 /**
  * Gets the global leaderboard with pagination.
@@ -68,36 +87,53 @@ const fetchUserData = async (userId) => {
  * @returns {Promise<Array>} The global leaderboard.
  */
 async function getGlobalLeaderboard(page = 1, limit = 25) {
-  try {
-    const ref = collection(db, 'leaderboard');
-    const snapshot = await getDocs(query(ref, orderBy('xp', 'desc')));
-    const leaderboardData = snapshot.docs
-      .map((doc) => ({ userId: doc.id, ...doc.data() }))
-      .sort((a, b) => b.xp - a.xp);
+	try {
+		const ref = collection(db, 'leaderboard')
+		const leaderboardQuery = query(
+			ref,
+			orderBy('xp', 'desc'),
+			firestoreLimit(limit),
+			startAfter((page - 1) * limit)
+		)
+		const snapshot = await getDocs(leaderboardQuery)
 
-    const startIndex = (page - 1) * limit;
-    const endIndex = page * limit;
+		const leaderboardData = snapshot.docs
+			.map((doc) => ({ userId: doc.id, ...doc.data() }))
+			.sort((a, b) => b.xp - a.xp)
 
-    const paginatedData = leaderboardData.slice(startIndex, endIndex);
+		const enrichedLeaderboardPromises = leaderboardData.map(async (user) => {
+			const userData = await fetchUserData(user.userId)
+			if (userData) {
+				return {
+					...user,
+					username: userData.username,
+					globalName: userData.globalName,
+					avatarUrl: userData.avatarUrl,
+				}
+			}
+			return user // If userData is null, return the original user data
+		})
 
-    const enrichedLeaderboardPromises = paginatedData.map(async (user) => {
-      const userData = await fetchUserData(user.userId);
-      if (userData) {
-        return {
-          ...user,
-          username: userData.username,
-          globalName: userData.globalName,
-          avatarUrl: userData.avatarUrl,
-        };
-      }
-      return user; // If userData is null, return the original user data
-    });
+		return Promise.all(enrichedLeaderboardPromises)
+	} catch (error) {
+		console.error('Error fetching global leaderboard:', error)
+		throw error
+	}
+}
 
-    return Promise.all(enrichedLeaderboardPromises);
-  } catch (error) {
-    console.error('Error fetching global leaderboard:', error);
-    throw error;
-  }
+/**
+ * Gets the total count of users in the leaderboard.
+ * @returns {Promise<number>} The total number of users.
+ */
+async function getTotalUserCount() {
+	try {
+		const ref = collection(db, 'leaderboard')
+		const snapshot = await getCountFromServer(ref)
+		return snapshot.data().count
+	} catch (error) {
+		console.error('Error fetching total user count:', error)
+		throw error
+	}
 }
 
 /**
@@ -125,7 +161,7 @@ async function getServerLeaderboard(serverId) {
 				}
 
 				return { userId, serverXP }
-			}),
+			})
 		)
 
 		const Leaderboard = response.filter((user) => user.serverXP > 0)

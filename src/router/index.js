@@ -137,13 +137,17 @@ async function handleGlobalLeaderboard(req) {
 		) // Ensure the limit is between 1 and 100
 
 		const globalLeaderboard = await getGlobalLeaderboard(page, limit)
+		const totalUsers = await getTotalUserCount()
 
-		return new Response(JSON.stringify(globalLeaderboard), {
-			headers: {
-				'Access-Control-Allow-Origin': '*',
-				'Content-Type': 'application/json',
-			},
-		})
+		return new Response(
+			JSON.stringify({ leaderboard: globalLeaderboard, totalUsers }),
+			{
+				headers: {
+					'Access-Control-Allow-Origin': '*',
+					'Content-Type': 'application/json',
+				},
+			}
+		)
 	} catch (error) {
 		console.error('Error fetching global leaderboard:', error)
 		return new Response('Error fetching global leaderboard', { status: 500 })
