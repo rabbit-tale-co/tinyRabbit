@@ -1,12 +1,8 @@
 import { ActivityType } from 'discord.js'
-
-import { getGlobalLeaderboard } from '../api/leaderBoard'
 import { fetchTotalXp } from '../api/TotalXp'
 
 export async function updateBotPresence(client) {
 	try {
-		// Fetch the global leaderboard
-		const leaderboard = await getGlobalLeaderboard()
 
 		// Initialize total XP
 		const totalXp = await fetchTotalXp()

@@ -1,5 +1,9 @@
 import { fetchTotalXp } from '../api/totalXp'
-import { getGlobalLeaderboard, getTotalUserCount, updateLeaderboard } from '../api/leaderBoard'
+import {
+	getGlobalLeaderboard,
+	getTotalUserCount,
+	updateLeaderboard,
+} from '../api/leaderBoard'
 import { getGlobalRank, getServerRank } from '../api/userRank'
 import {
 	checkBotMembership,
@@ -129,24 +133,30 @@ async function handleTotalXp(req) {
  */
 async function handleGlobalLeaderboard(req) {
 	try {
-	  const url = new URL(req.url);
-	  const page = Number.parseInt(url.searchParams.get('page')) || 1;
-	  const limit = Math.min(Number.parseInt(url.searchParams.get('limit')) || 25, 100); // Ensure the limit is between 1 and 100
- 
-	  const globalLeaderboard = await getGlobalLeaderboard(page, limit);
-	  const totalUsers = await getTotalUserCount();
- 
-	  return new Response(JSON.stringify({ leaderboard: globalLeaderboard, totalUsers }), {
-		 headers: {
-			'Access-Control-Allow-Origin': '*',
-			'Content-Type': 'application/json',
-		 },
-	  });
+		const url = new URL(req.url)
+		const page = Number.parseInt(url.searchParams.get('page')) || 1
+		const limit = Math.min(
+			Number.parseInt(url.searchParams.get('limit')) || 25,
+			100
+		) // Ensure the limit is between 1 and 100
+
+		const globalLeaderboard = await getGlobalLeaderboard(page, limit)
+		const totalUsers = await getTotalUserCount()
+
+		return new Response(
+			JSON.stringify({ leaderboard: globalLeaderboard, totalUsers }),
+			{
+				headers: {
+					'Access-Control-Allow-Origin': '*',
+					'Content-Type': 'application/json',
+				},
+			}
+		)
 	} catch (error) {
-	  console.error('Error fetching global leaderboard:', error);
-	  return new Response('Error fetching global leaderboard', { status: 500 });
+		console.error('Error fetching global leaderboard:', error)
+		return new Response('Error fetching global leaderboard', { status: 500 })
 	}
- }
+}
 
 /**
  * Handles the /api/leaderboard/getGlobal endpoint.
