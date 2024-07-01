@@ -44,8 +44,12 @@ async function router(req) {
 	switch (url.pathname) {
 		case '/api/bot-status':
 			return handleBotStatus(req)
-		case '/api/total-xp':
+		case '/api/leaderboard/totalXp':
 			return handleTotalXp(req)
+		case '/api/leaderboard/getGlobal':
+			return handleGlobalLeaderboard(req)
+		case '/api/leaderboard/getServer':
+			return handleServerLeaderboard(req)
 		case '/api/guilds/getGuild':
 			return handleGetGuild(req)
 		case '/api/guilds/checkBotMembership':
@@ -120,18 +124,43 @@ async function handleTotalXp(req) {
  */
 async function handleGlobalLeaderboard(req) {
 	try {
-		const globalLeaderboard = await getGlobalLeaderboard()
+		const url = new URL(req.url);
+		let limit = Number.parseInt(url.searchParams.get('limit')) || 10;
+		limit = Math.min(Math.max(limit, 1), 100); // Ensure the limit is between 1 and 100
+
+		const globalLeaderboard = await getGlobalLeaderboard(limit);
+
 		return new Response(JSON.stringify(globalLeaderboard), {
 			headers: {
 				'Access-Control-Allow-Origin': '*',
 				'Content-Type': 'application/json',
 			},
-		})
+		});
 	} catch (error) {
-		console.error('Error fetching global leaderboard:', error)
-		return new Response('Error fetching global leaderboard', { status: 500 })
+		console.error('Error fetching global leaderboard:', error);
+		return new Response('Error fetching global leaderboard', { status: 500 });
 	}
 }
+
+/**
+ * Handles the /api/leaderboard/getGlobal endpoint.
+ * @param {Request} req - The incoming HTTP request.
+ * @returns {Promise<Response>} The HTTP response with the global leaderboard.
+ */
+// async function handleGlobalLeaderboard(req) {
+// 	try {
+// 		const globalLeaderboard = await getGlobalLeaderboard()
+// 		return new Response(JSON.stringify(globalLeaderboard), {
+// 			headers: {
+// 				'Access-Control-Allow-Origin': '*',
+// 				'Content-Type': 'application/json',
+// 			},
+// 		})
+// 	} catch (error) {
+// 		console.error('Error fetching global leaderboard:', error)
+// 		return new Response('Error fetching global leaderboard', { status: 500 })
+// 	}
+// }
 
 /**
  * Handles the /api/leaderboard/getServer endpoint.
