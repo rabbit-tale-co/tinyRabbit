@@ -35,18 +35,30 @@ const fetchUserData = async (userId) => {
  * Gets the global leaderboard.
  * @returns {Promise<Array>} The global leaderboard.
  */
-async function getGlobalLeaderboard() {
+async function getGlobalLeaderboard(limit = 10) {
 	try {
-		const ref = collection(db, 'leaderboard')
-		const snapshot = await getDocs(ref)
-		return snapshot.docs
-			.map((doc) => ({ userId: doc.id, ...doc.data() }))
-			.sort((a, b) => b.xp - a.xp)
+	  const ref = collection(db, 'leaderboard');
+	  const snapshot = await getDocs(ref);
+	  const leaderboardData = snapshot.docs
+		 .map((doc) => ({ userId: doc.id, ...doc.data() }))
+		 .sort((a, b) => b.xp - a.xp)
+		 .slice(0, limit);
+ 
+	  const enrichedLeaderboardPromises = leaderboardData.map(async (user) => {
+		 const userData = await fetchUserData(user.userId);
+		 return {
+			...user,
+			username: userData.username,
+			avatarUrl: userData.avatarUrl,
+		 };
+	  });
+ 
+	  return Promise.all(enrichedLeaderboardPromises);
 	} catch (error) {
-		console.error('Error fetching global leaderboard:', error)
-		throw error
+	  console.error('Error fetching global leaderboard:', error);
+	  throw error;
 	}
-}
+ }
 
 /**
  * Gets the server leaderboard.
