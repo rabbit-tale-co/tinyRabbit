@@ -35,14 +35,14 @@ const fetchUserData = async (userId) => {
  * Gets the global leaderboard.
  * @returns {Promise<Array>} The global leaderboard.
  */
-async function getGlobalLeaderboard(limit = 10) {
+async function getGlobalLeaderboard(min = 1, max = 10) {
 	try {
 	  const ref = collection(db, 'leaderboard');
 	  const snapshot = await getDocs(ref);
 	  const leaderboardData = snapshot.docs
 		 .map((doc) => ({ userId: doc.id, ...doc.data() }))
 		 .sort((a, b) => b.xp - a.xp)
-		 .slice(0, limit);
+		 .slice(min - 1, max); // Adjust slice to min and max
  
 	  const enrichedLeaderboardPromises = leaderboardData.map(async (user) => {
 		 const userData = await fetchUserData(user.userId);
