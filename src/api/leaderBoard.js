@@ -8,28 +8,28 @@ import { calculateTotalXpForLevel } from '../utils/xpUtils.js'
  */
 const fetchUserData = async (userId) => {
 	try {
-		const response = await fetch(`https://discord.com/api/users/${userId}`, {
-			headers: {
-				Authorization: `Bot ${process.env.BOT_TOKEN}`,
-			},
-		})
-
-		if (!response.ok) {
-			throw new Error('Failed to fetch user data')
-		}
-
-		const userData = await response.json()
-		return {
-			id: userData.id,
-			username: userData.username,
-			globalName: userData.global_name,
-			avatarUrl: `https://cdn.discordapp.com/avatars/${userData.id}/${userData.avatar}.webp`,
-		}
+	  const response = await fetch(`https://discord.com/api/users/${userId}`, {
+		 headers: {
+			Authorization: `Bot ${process.env.BOT_TOKEN}`,
+		 },
+	  });
+ 
+	  if (!response.ok) {
+		 throw new Error('Failed to fetch user data');
+	  }
+ 
+	  const userData = await response.json();
+	  return {
+		 id: userData.id,
+		 username: userData.username,
+		 globalName: userData.global_name,
+		 avatarUrl: `https://cdn.discordapp.com/avatars/${userData.id}/${userData.avatar}.webp`,
+	  };
 	} catch (error) {
-		console.error('Error fetching user data:', error)
-		return null
+	  console.error('Error fetching user data:', error);
+	  return null;
 	}
-}
+ };
 
 /**
  * Gets the global leaderboard.
@@ -37,28 +37,28 @@ const fetchUserData = async (userId) => {
  */
 async function getGlobalLeaderboard() {
 	try {
-		const ref = collection(db, 'leaderboard')
-		const snapshot = await getDocs(ref)
-		const leaderboardData = snapshot.docs
-			.map((doc) => ({ userId: doc.id, ...doc.data() }))
-			.sort((a, b) => b.xp - a.xp)
-
-		const enrichedLeaderboardPromises = leaderboardData.map(async (user) => {
-			const userData = await fetchUserData(user.userId)
-			return {
-				...user,
-				username: userData.username,
-				globalName: userData.globalName,
-				avatarUrl: userData.avatarUrl,
-			}
-		})
-
-		return Promise.all(enrichedLeaderboardPromises)
+	  const ref = collection(db, 'leaderboard');
+	  const snapshot = await getDocs(ref);
+	  const leaderboardData = snapshot.docs
+		 .map((doc) => ({ userId: doc.id, ...doc.data() }))
+		 .sort((a, b) => b.xp - a.xp)
+ 
+	  const enrichedLeaderboardPromises = leaderboardData.map(async (user) => {
+		 const userData = await fetchUserData(user.userId);
+		 return {
+			...user,
+			username: userData.username,
+			globalName: userData.globalName,
+			avatarUrl: userData.avatarUrl,
+		 };
+	  });
+ 
+	  return Promise.all(enrichedLeaderboardPromises);
 	} catch (error) {
-		console.error('Error fetching global leaderboard:', error)
-		throw error
+	  console.error('Error fetching global leaderboard:', error);
+	  throw error;
 	}
-}
+ }
 
 /**
  * Gets the server leaderboard.
@@ -85,7 +85,7 @@ async function getServerLeaderboard(serverId) {
 				}
 
 				return { userId, serverXP }
-			}),
+			})
 		)
 
 		const Leaderboard = response.filter((user) => user.serverXP > 0)
