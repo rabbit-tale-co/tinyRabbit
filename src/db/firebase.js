@@ -9,7 +9,8 @@ import {
 	writeBatch,
 	query,
 	orderBy,
-	limit
+	limit,
+	startAfter,
 } from 'firebase/firestore'
 
 const firebaseConfig = {
@@ -32,4 +33,4 @@ export function initializeFirebase() {
 	}
 }
 
-export { db, doc, getDoc, setDoc, getDocs, collection, writeBatch, query, orderBy, limit }
+export { db, doc, getDoc, setDoc, getDocs, collection, writeBatch, query, orderBy, limit, startAfter }
