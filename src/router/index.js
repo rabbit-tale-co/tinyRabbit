@@ -1,5 +1,6 @@
 import { fetchTotalXp } from '../api/totalXp'
 import {
+	calculateTotalXp,
 	getGlobalLeaderboard,
 	getTotalUserCount,
 	updateLeaderboard,
